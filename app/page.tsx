@@ -1,44 +1,38 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Download, Bot, X, Send, Sparkles, RefreshCw, Filter, Warehouse, AlertTriangle } from 'lucide-react';
+import { Download, Bot, X, Send, Sparkles, RefreshCw, Filter, AlertTriangle } from 'lucide-react';
 import { processCSVData } from '../src/utils/dataProcessor';
-import { calculateKPIs, calculateMonthlyTrends, calculateCategoryPerformance, calculateDepotPerformance, identifyRisks } from '../src/utils/calculations';
+import { calculateKPIs, calculateMonthlyTrends, calculateCategoryTrends, calculateDepotTrends, calculateMarginTrends, calculateCategoryTurnover, identifyRisks } from '../src/utils/calculations';
 import TrendChart from '../src/components/TrendChart';
-import CategoryChart from '../src/components/CategoryChart';
-import DepotChart from '../src/components/DepotChart';
+import CategoryTrendChart from '../src/components/CategoryTrendChart';
+import DepotTrendChart from '../src/components/DepotTrendChart';
+import MarginTrendChart from '../src/components/MarginTrendChart';
 import KpiCards from '../src/components/KpiCards';
 import AnomalyBanner from '../src/components/AnomalyBanner';
-import ProductXRay from '../src/components/ProductXRay';
 import RiskMatrixTable from '../src/components/RiskMatrixTable';
-
+import StockTurnoverChart from '../src/components/StockTurnoverChart';
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [rawCleanData, setRawCleanData] = useState<any[]>([]);
   const [anomalies, setAnomalies] = useState<any>(null);
   const [kpis, setKpis] = useState<any>(null);
   const [trends, setTrends] = useState<any[]>([]);
-  const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [depotData, setDepotData] = useState<any[]>([]);
+  const [categoryTrendData, setCategoryTrendData] = useState<any[]>([]);
+  const [depotTrendData, setDepotTrendData] = useState<any[]>([]);
+  const [marginTrendData, setMarginTrendData] = useState<any[]>([]);
   const [risks, setRisks] = useState<any[]>([]);
+  const [turnoverData, setTurnoverData] = useState<any[]>([]);
 
-  // Filtreler
   const [selectedPeriod, setSelectedPeriod] = useState<string>('ALL');
-  const [selectedDepot, setSelectedDepot] = useState<string>('ALL');
   const [availablePeriods, setAvailablePeriods] = useState<string[]>([]);
-  const [availableDepots, setAvailableDepots] = useState<string[]>([]);
 
-  // Ürün Bazlı Drill-Down State'leri
-  const [availableProducts, setAvailableProducts] = useState<{ stokKodu: string; urunAdi: string }[]>([]);
-  const [selectedProductCode, setSelectedProductCode] = useState<string>('ALL');
-
-  // AI Raporu State'leri
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string>('');
 
-  // Chatbot State'leri
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<{role: string, text: string}[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
@@ -56,29 +50,12 @@ export default function DashboardPage() {
         setAnomalies(detectedAnomalies);
 
         const periods = [...new Set(cleanData.map((d: any) => d.donem))].sort() as string[];
-        const depots = [...new Set(cleanData.map((d: any) => d.depo))] as string[];
-        
-        const productMap = new Map();
-        cleanData.forEach((d: any) => {
-          if (!productMap.has(d.stok_kodu)) {
-            productMap.set(d.stok_kodu, d.urun_adi);
-          }
-        });
-        const productsList = Array.from(productMap.entries()).map(([stokKodu, urunAdi]) => ({ stokKodu, urunAdi }));
-
         setAvailablePeriods(periods);
-        setAvailableDepots(depots);
-        setAvailableProducts(productsList);
 
-        applyFiltersWithData('ALL', 'ALL', cleanData);
+        applyFilters('ALL', cleanData);
         setLoading(false);
 
-        const cachedAnalysis = localStorage.getItem('sonart_ai_analysis_cache');
-        if (cachedAnalysis) {
-          setAiAnalysis(cachedAnalysis);
-        } else {
-          fetchAIAnalysis(calculateMonthlyTrends(cleanData), identifyRisks(cleanData), calculateKPIs(cleanData));
-        }
+        fetchAIAnalysis(calculateMonthlyTrends(cleanData), identifyRisks(cleanData), calculateKPIs(cleanData), 'ALL');
 
       } catch (error) {
         console.error('Veri yükleme hatası:', error);
@@ -89,11 +66,7 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const applyFilters = (period: string, depot: string) => {
-    applyFiltersWithData(period, depot, rawCleanData);
-  };
-
-  const applyFiltersWithData = (period: string, depot: string, sourceData: any[]) => {
+  const applyFilters = (period: string, sourceData: any[]) => {
     if (!sourceData || sourceData.length === 0) return;
     
     let filtered = [...sourceData];
@@ -101,37 +74,33 @@ export default function DashboardPage() {
     if (period !== 'ALL') {
       filtered = filtered.filter(d => d.donem === period);
     }
-    if (depot !== 'ALL') {
-      filtered = filtered.filter(d => d.depo === depot);
-    }
 
-    setKpis(calculateKPIs(filtered));
-    setTrends(calculateMonthlyTrends(filtered));
-    setCategoryData(calculateCategoryPerformance(filtered));
-    setDepotData(calculateDepotPerformance(filtered));
-    setRisks(identifyRisks(filtered));
+    const currentKpis = calculateKPIs(filtered);
+    const currentTrends = calculateMonthlyTrends(filtered);
+    const currentRisks = identifyRisks(filtered);
+
+    setKpis(currentKpis);
+    setTrends(currentTrends);
+    setCategoryTrendData(calculateCategoryTrends(filtered));
+    setDepotTrendData(calculateDepotTrends(filtered));
+    setMarginTrendData(calculateMarginTrends(filtered));
+    setRisks(currentRisks);
+    setTurnoverData(calculateCategoryTurnover(filtered));
+
+    // Dönem değiştikçe AI analizini o döneme göre yeniden tetikle
+    fetchAIAnalysis(currentTrends, currentRisks, currentKpis, period);
   };
 
   const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const period = e.target.value;
     setSelectedPeriod(period);
-    applyFilters(period, selectedDepot);
+    applyFilters(period, rawCleanData);
   };
 
-  const handleDepotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const depot = e.target.value;
-    setSelectedDepot(depot);
-    applyFilters(selectedPeriod, depot);
-  };
-
-  const getSelectedProductHistory = () => {
-    if (selectedProductCode === 'ALL') return [];
-    return rawCleanData.filter(d => d.stok_kodu === selectedProductCode).sort((a, b) => a.donem.localeCompare(b.donem));
-  };
-
-  const fetchAIAnalysis = async (trendsData: any, risksData: any, kpisData: any, forceRefresh = false) => {
+  const fetchAIAnalysis = async (trendsData: any, risksData: any, kpisData: any, period: string, forceRefresh = false) => {
+    const cacheKey = `sonart_ai_analysis_${period}`;
     if (!forceRefresh) {
-      const cached = localStorage.getItem('sonart_ai_analysis_cache');
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
         setAiAnalysis(cached);
         return;
@@ -144,14 +113,14 @@ export default function DashboardPage() {
       const res = await fetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trends: trendsData, risks: risksData, kpis: kpisData })
+        body: JSON.stringify({ trends: trendsData, risks: risksData, kpis: kpisData, selectedPeriod: period })
       });
       
       if (!res.ok) throw new Error("API Yanıt Vermedi");
       
       const data = await res.json();
       setAiAnalysis(data.analysis);
-      localStorage.setItem('sonart_ai_analysis_cache', data.analysis);
+      localStorage.setItem(cacheKey, data.analysis);
     } catch (err) {
       setAiError('Yapay zeka analiz raporu oluşturulurken sistemsel bir hata oluştu.');
     } finally {
@@ -160,8 +129,9 @@ export default function DashboardPage() {
   };
 
   const handleRefreshAI = () => {
-    localStorage.removeItem('sonart_ai_analysis_cache');
-    fetchAIAnalysis(trends, risks, kpis, true);
+    const cacheKey = `sonart_ai_analysis_${selectedPeriod}`;
+    localStorage.removeItem(cacheKey);
+    fetchAIAnalysis(trends, risks, kpis, selectedPeriod, true);
   };
 
   const handleDownloadPDF = () => {
@@ -180,7 +150,7 @@ export default function DashboardPage() {
     setTimeout(() => {
       setChatHistory(prev => [...prev, { 
         role: 'ai', 
-        text: `"${chatMessage}" sorgunuz için ERP veritabanı taranmıştır. İlgili dönemde seçilen parametreler doğrultusunda operasyonel akış normal seviyededir.` 
+        text: `"${chatMessage}" sorgunuz için ${selectedPeriod === 'ALL' ? '6 aylık kümülatif' : selectedPeriod} dönemi ERP veritabanı taranmıştır. Operasyonel akış rapor ile uyumludur.` 
       }]);
       setChatLoading(false);
     }, 1000);
@@ -195,134 +165,142 @@ export default function DashboardPage() {
     );
   }
 
-  const productHistory = getSelectedProductHistory();
-
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
-      <div className="max-w-7xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+    <div className="min-h-screen bg-slate-100 p-3 md:p-6 font-sans">
+      <div className="w-full bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-slate-200">
         
-        {/* ÜST BAŞLIK VE FİLTRELER */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 border-b border-slate-200 pb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-blue-600 text-white text-xs font-bold px-2.5 py-0.5 rounded">LOGO NETSIS ERP</span>
-              <span className="text-slate-400 text-xs font-medium">Simülasyon v2.7 (Modular Lead Edition)</span>
+        {/* ÜST RAPOR HEADER VE FİLTRE ŞERİTİ */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-slate-200 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="bg-blue-600 text-white text-xs font-extrabold px-3 py-1 rounded-md tracking-wide">NETSIS ERP</span>
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Sonart Tekstil Satış & Stok Performans Kokpiti</h1>
+              <p className="text-slate-400 text-xs">Veri Son Güncelleme: Canlı Akış • Çok Dönemli Yönetici Raporu</p>
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Sonart Tekstil Yönetim Kokpiti</h1>
-            <p className="text-slate-500 text-sm mt-1">Stok, Satış, Finansal Trend ve Ürün Röntgeni Analizi</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            {/* Dönem Filtresi */}
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg shadow-sm">
-              <Filter size={15} className="text-slate-500" />
-              <span className="text-xs font-semibold text-slate-600">Dönem:</span>
-              <select 
-                value={selectedPeriod} 
-                onChange={handlePeriodChange}
-                className="bg-transparent text-sm font-semibold text-slate-800 focus:outline-none cursor-pointer"
-              >
-                <option value="ALL">Tüm Dönemler (6 Ay)</option>
-                {availablePeriods.map(p => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
-            </div>
+          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+            <AnomalyBanner anomalies={anomalies} />
 
-            {/* Depo Filtresi */}
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg shadow-sm">
-              <Warehouse size={15} className="text-slate-500" />
-              <span className="text-xs font-semibold text-slate-600">Depo:</span>
-              <select 
-                value={selectedDepot} 
-                onChange={handleDepotChange}
-                className="bg-transparent text-sm font-semibold text-slate-800 focus:outline-none cursor-pointer"
+{/* MODERN ÖZEL DROPDOWN */}
+            <div className="relative">
+              <div 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-300 px-3 py-1.5 rounded-lg shadow-sm cursor-pointer transition-all select-none"
               >
-                <option value="ALL">Tüm Depolar</option>
-                {availableDepots.map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
+                <Filter size={14} className="text-slate-500" />
+                <span className="text-xs font-semibold text-slate-600">Dönem Seçimi:</span>
+                <span className="text-xs font-bold text-slate-800">
+                  {selectedPeriod === 'ALL' ? 'Tüm Dönemler (6 Ay Kümülatif)' : selectedPeriod}
+                </span>
+                <span className={`text-slate-500 text-xs transition-transform duration-200 ml-1 ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
+              </div>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div 
+                    onClick={() => { setSelectedPeriod('ALL'); applyFilters('ALL', rawCleanData); setIsDropdownOpen(false); }}
+                    className={`px-4 py-2 text-xs font-semibold cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-colors ${selectedPeriod === 'ALL' ? 'bg-blue-50 text-blue-600 font-bold' : 'text-slate-700'}`}
+                  >
+                    Tüm Dönemler (6 Ay Kümülatif)
+                  </div>
+                  {availablePeriods.map(p => (
+                    <div 
+                      key={p}
+                      onClick={() => { setSelectedPeriod(p); applyFilters(p, rawCleanData); setIsDropdownOpen(false); }}
+                      className={`px-4 py-2 text-xs font-semibold cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-colors ${selectedPeriod === p ? 'bg-blue-50 text-blue-600 font-bold' : 'text-slate-700'}`}
+                    >
+                      {p}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button 
               onClick={handleDownloadPDF}
-              className="bg-slate-900 text-white px-5 py-2.5 rounded-lg hover:bg-slate-800 transition-all flex items-center gap-2 shadow font-medium text-sm ml-auto lg:ml-0"
+              className="bg-slate-900 text-white px-4 py-1.5 rounded-lg hover:bg-slate-800 transition-all flex items-center gap-1.5 shadow font-semibold text-xs"
             >
-              <Download size={16} />
-              PDF Raporu İndir
+              <Download size={14} />
+              PDF Export
             </button>
           </div>
         </div>
 
-        {/* MODÜLER BİLEŞENLER */}
-        <AnomalyBanner anomalies={anomalies} />
+        {/* 1. ŞERİT: KPI KARTLARI */}
         <KpiCards kpis={kpis} />
 
-        {/* GRAFİKLER GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-1">
-            <h2 className="text-base font-bold text-slate-900">Aylık Satış & Stok Trendi</h2>
-            <p className="text-xs text-slate-400 mb-4">Zaman serisi performans değişimi</p>
+        {/* 2. ŞERİT: 4'LÜ ZAMAN SERİSİ BENTO GRID (2x2 Düzen) */}
+       {/* 2. ŞERİT: ZAMAN SERİSİ VE VERİMLİLİK BENTO GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h2 className="text-sm font-bold text-slate-900">Aylık Satış & Stok Trendi</h2>
+            <p className="text-[11px] text-slate-400 mb-2">Zaman serisi hacim değişimi</p>
             <TrendChart data={trends} />
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-1">
-            <h2 className="text-base font-bold text-slate-900">Kategori Bazlı Ciro</h2>
-            <p className="text-xs text-slate-400 mb-4">Ürün gruplarının gelir payı (TL)</p>
-            <CategoryChart data={categoryData} />
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h2 className="text-sm font-bold text-slate-900">Kategori Bazlı Ciro Trendi</h2>
+            <p className="text-[11px] text-slate-400 mb-2">6 aylık kategori bazlı gelir değişimi</p>
+            <CategoryTrendChart data={categoryTrendData} />
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-1">
-            <h2 className="text-base font-bold text-slate-900">Depo Bazlı Dağılım</h2>
-            <p className="text-xs text-slate-400 mb-4">Ana ve Yan depo sevkiyat/stok kıyaslaması</p>
-            <DepotChart data={depotData} />
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h2 className="text-sm font-bold text-slate-900">Depo Sevkiyat Trendi</h2>
+            <p className="text-[11px] text-slate-400 mb-2">6 aylık depo çıkış/sevkiyat değişimi</p>
+            <DepotTrendChart data={depotTrendData} />
+          </div>
+
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h2 className="text-sm font-bold text-slate-900">Kâr Marjı & Maliyet Trendi</h2>
+            <p className="text-[11px] text-slate-400 mb-2">Dönemsel karlılık ve maliyet enflasyon analizi</p>
+            <MarginTrendChart data={marginTrendData} />
+          </div>
+
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
+            <h2 className="text-sm font-bold text-slate-900">Kategori Bazlı Stok Devir Hızı & Sermaye Verimliliği</h2>
+            <p className="text-[11px] text-slate-400 mb-2">Hangi kategorinin depoda ne kadar hızlı nakde döndüğünün analizi</p>
+            <StockTurnoverChart data={turnoverData} />
           </div>
         </div>
+        {/* 3. ŞERİT: RİSK MATRİSİ */}
+        <div className="mb-6">
+          <RiskMatrixTable risks={risks} />
+        </div>
 
-        <ProductXRay 
-          availableProducts={availableProducts}
-          selectedProductCode={selectedProductCode}
-          onSelectProduct={setSelectedProductCode}
-          productHistory={productHistory}
-        />
-
-        <RiskMatrixTable risks={risks} />
-
-        {/* YÖNETİCİ STRATEJİ ÖZETİ */}
-        <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 relative">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                <Sparkles className="text-blue-600" size={20} />
+        {/* 4. ŞERİT: YÖNETİCİ STRATEJİ ÖZETİ (AI - DİNAMİK) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative mb-4">
+          <div className="flex justify-between items-center mb-4 border-b border-slate-200 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Sparkles className="text-blue-600" size={16} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Yönetici Strateji Özeti & Eylem Önerileri</h2>
-                <p className="text-xs text-slate-500">Gemini 3.6 Flash • Kurumsal Karar Destek Modülü</p>
+                <h2 className="text-base font-bold text-slate-900">Yönetici Strateji Özeti & Dönemsel Eylem Önerileri</h2>
+                <p className="text-[11px] text-slate-500">Gemini 3.6 Flash • Seçilen Dönem: {selectedPeriod === 'ALL' ? 'Tüm 6 Ay' : selectedPeriod}</p>
               </div>
             </div>
             
             <button 
               onClick={handleRefreshAI}
               disabled={aiLoading}
-              title="Yapay zekadan taze analiz iste"
-              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
             >
-              <RefreshCw size={14} className={aiLoading ? "animate-spin" : ""} />
+              <RefreshCw size={12} className={aiLoading ? "animate-spin" : ""} />
               Analizi Yenile
             </button>
           </div>
 
-          <div className="prose prose-slate max-w-none text-slate-700 text-sm leading-relaxed">
+          <div className="prose prose-slate max-w-none text-slate-700 text-xs md:text-sm leading-relaxed">
             {aiLoading ? (
-              <div className="space-y-3 animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                <div className="h-4 bg-slate-200 rounded w-full"></div>
-                <div className="h-4 bg-slate-200 rounded w-5/6"></div>
-                <p className="text-xs text-blue-600 font-medium pt-2">ERP verileri yapay zeka tarafından işleniyor...</p>
+              <div className="space-y-2 animate-pulse">
+                <div className="h-3 bg-slate-200 rounded w-3/4"></div>
+                <div className="h-3 bg-slate-200 rounded w-full"></div>
+                <div className="h-3 bg-slate-200 rounded w-5/6"></div>
+                <p className="text-xs text-blue-600 font-medium pt-1">Yapay zeka {selectedPeriod} dönemi için yeniden analiz üretiyor...</p>
               </div>
             ) : aiError ? (
-              <div className="text-red-500 flex items-center gap-2"><AlertTriangle size={18} /> {aiError}</div>
+              <div className="text-red-500 flex items-center gap-2"><AlertTriangle size={16} /> {aiError}</div>
             ) : (
               <div dangerouslySetInnerHTML={{ __html: aiAnalysis || "Analiz bekleniyor..." }} />
             )}
@@ -331,7 +309,7 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* CHATBOT */}
+      {/* YÜZEN CHATBOT */}
       <div className="fixed bottom-6 right-6 z-50">
         {!isChatOpen ? (
           <button onClick={() => setIsChatOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-105">
@@ -346,7 +324,7 @@ export default function DashboardPage() {
             
             <div className="h-72 bg-slate-50 p-4 overflow-y-auto flex flex-col gap-3 text-xs md:text-sm">
               <div className="bg-blue-50 border border-blue-100 text-slate-800 self-start p-3 rounded-xl max-w-[85%]">
-                Merhaba! Sonart Tekstil ERP asistanıyım. Stoklar, depo dağılımları veya kâr marjları hakkında bana soru sorabilirsiniz.
+                Merhaba! Sonart Tekstil ERP asistanıyım. Seçtiğiniz dönem ({selectedPeriod}) bağlamında sorularınızı yanıtlamaya hazırım.
               </div>
               {chatHistory.map((msg, i) => (
                 <div key={i} className={`p-3 rounded-xl max-w-[85%] ${msg.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-white border border-slate-200 text-slate-800 self-start'}`}>
@@ -365,7 +343,7 @@ export default function DashboardPage() {
             <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-slate-200 flex gap-2">
               <input 
                 type="text" 
-                placeholder="Örn: En çok satan ürün hangisi?" 
+                placeholder="Örn: Bu dönem en riskli ürün hangisi?" 
                 className="flex-1 bg-slate-100 rounded-lg px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
                 value={chatMessage}
                 onChange={(e) => setChatMessage(e.target.value)}

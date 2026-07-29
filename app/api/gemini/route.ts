@@ -11,53 +11,34 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { trends, risks, kpis } = body;
+    const { trends, risks, kpis, selectedPeriod } = body;
+
+    const periodContext = selectedPeriod === 'ALL' 
+      ? "Genel 6 Aylık Kümülatif Trendler ve Dönemsel Kıyaslama" 
+      : `Spesifik Dönem / Ay: ${selectedPeriod} (Bu aya ait operasyonel krizler ve daralmalar odak noktası olmalıdır)`;
 
     const prompt = `
-      Sen Sonart Tekstil için çalışan kıdemli bir veri analisti ve stratejistisin. 
-      Aşağıda sana şirketin son 6 aylık ERP verilerinden özetlenmiş metrikleri, satış/stok trendlerini ve tespit edilen riskli ürünleri veriyorum.
+      Sen "Sonart Tekstil" için çalışan Kıdemli Bir Veri Analisti ve Kurumsal Stratejistsin. 
+      Aşağıda şirketimizin Logo Netsis ERP sisteminden alınan verileri filtrelenmiş durumdadır.
 
-      VERİLER:
-      - Genel KPI'lar: ${JSON.stringify(kpis)}
-      - Aylık Trendler: ${JSON.stringify(trends)}
-      - Tespit Edilen Riskli Ürünler: ${JSON.stringify(risks)}
+      ANALİZ BAĞLAMI: ${periodContext}
+
+      VERİ SETİ ÖZETİ:
+      - Seçilen Dönem KPI'ları: ${JSON.stringify(kpis)}
+      - Zaman Serisi / Trendler: ${JSON.stringify(trends)}
+      - Kritik Eşik Altındaki Riskli Ürünler: ${JSON.stringify(risks)}
 
       GÖREVİN:
-      Bu verileri inceleyerek yönetim kuruluna sunulmak üzere kısa, net ve döneme özgü eyleme geçirilebilir bir analiz yaz.
-      
-      KURALLAR:
-      1. Sadece genel geçer şeyler söyleme (örn: "satışları artırın"). Mevsimsellik, stok tükenme riski veya daralan kâr marjları gibi somut dinamiklere değin.
-      2. Trendlerdeki değişime dikkat çek (örneğin son aylarda satışlar artıyor mu düşüyor mu?).
-      3. Riskli ürünler listesinde (eğer varsa) spesifik ürün kodlarını ve isimlerini kullanarak 1-2 acil aksiyon önerisi sun.
-      4. Metni çok uzun tutma, profesyonel bir iş dili kullan ve HTML (<strong>, <br>, <ul>, <li>) etiketleri ile formatlanmış temiz bir çıktı ver. Markdown KULLANMA, sadece saf HTML kullan.
+      Yönetim kurulu (C-Level) için hazırlanacak bu raporda, yukarıdaki verileri derinlemesine analiz ederek somut, stratejik ve eyleme geçirilebilir bir içgörü raporu sun.
+
+      RAPOR FORMATI VE KURALLAR:
+      1. Sadece genel geçer ifadeler kullanma (örn: "satışları artırın" gibi klişelerden kaçın). Birim maliyetlerin seyrine, kâr marjı baskılarına ve stok devir hızına değin.
+      2. Eğer belirli bir dönem seçildiyse (örn: 2026-04), o dönemin neden düştüğünü veya yükseldiğini (stok tükenmesi, maliyet sıçraması vb.) net bir şekilde açıkla.
+      3. Riskli ürünler listesindeki spesifik ürün kodlarını (Örn: U003, U005, U014) ve isimlerini kullanarak acil operasyonel aksiyonlar (acil ikmal emri, emniyet stoku güncellemesi vb.) öner.
+      4. Çıktıyı kesinlikle Markdown etiketleri (\`\`\`html vb.) KULLANMADAN, doğrudan saf HTML formatında (<strong>, <br>, <ul>, <li>) ver. Profesyonel, analitik ve net bir iş dili kullan.
     `;
 
-    // 1. ADIM: Google'a "Benim API anahtarımla hangi modeller aktif?" diye soruyoruz
-    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const listData = await listRes.json();
-
-    if (!listData.models) {
-      throw new Error("Model listesi çekilemedi. API anahtarında sorun olabilir.");
-    }
-
-    // 2. ADIM: Listeden sadece "metin üretimi (generateContent)" yapabilenleri filtrele
-    const availableModels = listData.models
-      .filter((m: any) => m.supportedGenerationMethods?.includes("generateContent"))
-      .map((m: any) => m.name.replace('models/', '')); // Baştaki 'models/' takısını temizle
-
-    console.log("🔑 SENİN HESABINDAKİ AKTİF MODELLER:", availableModels);
-
-    if (availableModels.length === 0) {
-      throw new Error("Hesabınıza tanımlı metin üretebilen bir model bulunamadı.");
-    }
-
-    // 3. ADIM: Listeden en uygun modeli otomatik seç 
-    // (Öncelikli olarak isminde 'flash' veya 'pro' geçen güncel modellerden birini arar, bulamazsa listedeki ilk modeli alır)
-const selectedModelName = 'gemini-3.6-flash';    
-    console.log("🚀 YENİDEN HEDEFLENEN MODEL:", selectedModelName);
-
-    // 4. ADIM: Seçilen ve %100 çalıştığından emin olduğumuz model ile analizi üret
-    const model = genAI.getGenerativeModel({ model: selectedModelName });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 

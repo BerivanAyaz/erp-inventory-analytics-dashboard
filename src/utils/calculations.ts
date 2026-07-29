@@ -97,50 +97,154 @@ export const identifyRisks = (data: ERPData[]) => {
     const satisFiyati = row.birim_satis_tl > 0 ? row.birim_satis_tl : 1; 
     const mevcutKarMarji = ((satisFiyati - row.birim_maliyet_tl) / satisFiyati) * 100;
     
-    let riskTuru = "";
+    let riskEtiketleri: string[] = [];
     let riskSeviyesi = "Düşük";
+    let oncelikPuani = 10;
 
+    // 1. Önceki Döneme Göre Marj Daralması Kontrolü
     let daralanMarjMi = false;
+    let oncekiKarMarjiVal = 0;
     if (oncekiDonem) {
       const oncekiUrun = oncekiDonemVerileri.find(u => u.stok_kodu === row.stok_kodu);
       if (oncekiUrun) {
         const oncekiSatisFiyati = oncekiUrun.birim_satis_tl > 0 ? oncekiUrun.birim_satis_tl : 1;
-        const oncekiKarMarji = ((oncekiSatisFiyati - oncekiUrun.birim_maliyet_tl) / oncekiSatisFiyati) * 100;
-        if ((oncekiKarMarji - mevcutKarMarji) > 5) {
+        oncekiKarMarjiVal = ((oncekiSatisFiyati - oncekiUrun.birim_maliyet_tl) / oncekiSatisFiyati) * 100;
+        if ((oncekiKarMarjiVal - mevcutKarMarji) > 2) {
           daralanMarjMi = true;
         }
       }
     }
 
+    // 2. Stok Durumu Kontrolleri
     if (row.donem_sonu_stok === 0) {
-      riskTuru = "Kritik: Stok Tamamen Tükenti!";
+      riskEtiketleri.push("Kritik: Stok Tükendi (Stock-out)");
       riskSeviyesi = "Kritik";
-    } else if (row.donem_sonu_stok > 0 && row.donem_sonu_stok < 20) {
-      riskTuru = "Stok Tükenme Riski";
+      oncelikPuani = 1;
+    } else if (row.donem_sonu_stok > 0 && row.donem_sonu_stok <= 50) {
+      riskEtiketleri.push("Stok Tükenme Riski");
       riskSeviyesi = "Kritik";
-    } else if (row.cikis_miktar < 10 && row.donem_sonu_stok > 200) {
-      riskTuru = "Yavaş Hareket Eden (Elde Kalan)";
-      riskSeviyesi = "Uyarı";
-    } else if (daralanMarjMi) {
-      riskTuru = "Daralan Kâr Marjı (Düşüş Trendi)";
-      riskSeviyesi = "Uyarı";
-    } else if (mevcutKarMarji < 10) {
-      riskTuru = "Çok Düşük Kâr Marjı";
-      riskSeviyesi = "Uyarı";
+      oncelikPuani = 2;
     }
 
-    if (riskTuru !== "") {
+    // 3. Yavaş Hareket Eden Kontrolü
+    if (row.cikis_miktar < 50 && row.donem_sonu_stok > 500) {
+      riskEtiketleri.push("Yavaş Hareket Eden / Atıl Stok");
+      if (riskSeviyesi !== "Kritik") riskSeviyesi = "Uyarı";
+      oncelikPuani = Math.min(oncelikPuani, 3);
+    }
+
+    // 4. Daralan veya Düşük Marj Kontrolü (Artık stok ile birlikte kombine yazılabilir!)
+    if (daralanMarjMi) {
+      riskEtiketleri.push(`Daralan Kâr Marjı (Önceki: %${oncekiKarMarjiVal.toFixed(1)})`);
+      if (riskSeviyesi !== "Kritik") riskSeviyesi = "Uyarı";
+      oncelikPuani = Math.min(oncelikPuani, 4);
+    } else if (mevcutKarMarji < 35) {
+      riskEtiketleri.push("Düşük Kâr Marjı Baskısı");
+      if (riskSeviyesi !== "Kritik") riskSeviyesi = "Uyarı";
+      oncelikPuani = Math.min(oncelikPuani, 5);
+    }
+
+    // Eğer herhangi bir risk tespit edildiyse birleştirip listeye ekle
+    if (riskEtiketleri.length > 0) {
       riskliUrunler.push({
         stokKodu: row.stok_kodu,
         urunAdi: row.urun_adi,
-        riskTuru,
+        riskTuru: riskEtiketleri.join(" + "), // Örn: "Stok Tükenme Riski + Daralan Kâr Marjı"
         riskSeviyesi,
         karMarji: mevcutKarMarji.toFixed(1),
-        stok: row.donem_sonu_stok
+        stok: row.donem_sonu_stok,
+        oncelikPuani
       });
     }
   });
 
-  // Stoğu 0 olanlar en üste gelecek şekilde sıralama (Senior dokunuşu)
-  return riskliUrunler.sort((a, b) => a.stok - b.stok);
+  return riskliUrunler.sort((a, b) => a.oncelikPuani - b.oncelikPuani || a.stok - b.stok);
+};
+
+
+
+// 6 Aylık Kategori Bazlı Ciro Trendi Hesaplama (TypeScript Güvenli)
+export const calculateCategoryTrends = (data: any[]) => {
+  if (!data || data.length === 0) return [];
+
+  const periodMap: Record<string, { donem: string; [key: string]: any }> = {};
+
+  data.forEach((row) => {
+    if (!periodMap[row.donem]) {
+      periodMap[row.donem] = { donem: row.donem };
+    }
+    const ciro = row.cikis_miktar * row.birim_satis_tl;
+    if (!periodMap[row.donem][row.kategori]) {
+      periodMap[row.donem][row.kategori] = 0;
+    }
+    periodMap[row.donem][row.kategori] += ciro;
+  });
+
+  return Object.values(periodMap).sort((a, b) => String(a.donem).localeCompare(String(b.donem)));
+};
+// 6 Aylık Depo Bazlı Çıkış/Sevkiyat Trendi
+export const calculateDepotTrends = (data: ERPData[]) => {
+  if (!data || data.length === 0) return [];
+
+  const periodMap: Record<string, { donem: string; [key: string]: any }> = {};
+
+  data.forEach((row) => {
+    if (!periodMap[row.donem]) {
+      periodMap[row.donem] = { donem: row.donem };
+    }
+    // Depo bazlı toplam çıkış (sevkiyat) hacmi
+    if (!periodMap[row.donem][row.depo]) {
+      periodMap[row.donem][row.depo] = 0;
+    }
+    periodMap[row.donem][row.depo] += row.cikis_miktar;
+  });
+
+  return Object.values(periodMap).sort((a, b) => String(a.donem).localeCompare(String(b.donem)));
+};
+// Dönemsel Kâr Marjı ve Maliyet Trendi Hesaplama
+export const calculateMarginTrends = (data: ERPData[]) => {
+  if (!data || data.length === 0) return [];
+
+  const periodMap: Record<string, { donem: string; toplamKarMarji: number; toplamMaliyet: number; toplamSatisFiyati: number; count: number }> = {};
+
+  data.forEach((row) => {
+    if (!periodMap[row.donem]) {
+      periodMap[row.donem] = { donem: row.donem, toplamKarMarji: 0, toplamMaliyet: 0, toplamSatisFiyati: 0, count: 0 };
+    }
+    const birimKar = row.birim_satis_tl - row.birim_maliyet_tl;
+    const karMarji = row.birim_satis_tl > 0 ? (birimKar / row.birim_satis_tl) * 100 : 0;
+
+    periodMap[row.donem].toplamKarMarji += karMarji;
+    periodMap[row.donem].toplamMaliyet += row.birim_maliyet_tl;
+    periodMap[row.donem].toplamSatisFiyati += row.birim_satis_tl;
+    periodMap[row.donem].count += 1;
+  });
+
+  return Object.values(periodMap).map(p => ({
+    donem: p.donem,
+    ortalamaKarMarji: Number((p.toplamKarMarji / p.count).toFixed(2)),
+    ortalamaMaliyet: Number((p.toplamMaliyet / p.count).toFixed(2)),
+    ortalamaSatis: Number((p.toplamSatisFiyati / p.count).toFixed(2))
+  })).sort((a, b) => a.donem.localeCompare(b.donem));
+};
+// Kategori Bazlı Stok Devir Hızı / Verimlilik Hesaplama
+export const calculateCategoryTurnover = (data: ERPData[]) => {
+  if (!data || data.length === 0) return [];
+
+  const catMap: Record<string, { kategori: string; toplamSatis: number; toplamStok: number }> = {};
+
+  data.forEach((row) => {
+    if (!catMap[row.kategori]) {
+      catMap[row.kategori] = { kategori: row.kategori, toplamSatis: 0, toplamStok: 0 };
+    }
+    catMap[row.kategori].toplamSatis += row.cikis_miktar;
+    catMap[row.kategori].toplamStok += row.donem_sonu_stok;
+  });
+
+  return Object.values(catMap).map(item => ({
+    kategori: item.kategori,
+    devirHizi: item.toplamStok > 0 ? Number((item.toplamSatis / (item.toplamStok / 6)).toFixed(2)) : 0,
+    toplamSatis: item.toplamSatis,
+    toplamStok: item.toplamStok
+  }));
 };
