@@ -51,9 +51,9 @@ export default function AnomalyBanner({ anomalies }: AnomalyBannerProps) {
         <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Tıklandığında Açılan Detay Kutusu (Dropdown Popover) */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+{/* Tıklandığında Açılan Detay Kutusu (Dropdown Popover) */}
+{isOpen && (
+        <div className="absolute left-0 mt-2 w-72 sm:w-80 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle size={16} className="text-amber-600" />

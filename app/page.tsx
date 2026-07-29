@@ -37,6 +37,18 @@ export default function DashboardPage() {
   const [chatHistory, setChatHistory] = useState<{role: string, text: string}[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
 
+  // Dönem menüsü açıkken dışarıya veya Veri Durumu'na tıklandığında menüyü kapat
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('#period-dropdown-container')) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -179,11 +191,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto print:hidden">
             <AnomalyBanner anomalies={anomalies} />
 
 {/* MODERN ÖZEL DROPDOWN */}
-            <div className="relative">
+            <div id="period-dropdown-container" className="relative">
               <div 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-300 px-3 py-1.5 rounded-lg shadow-sm cursor-pointer transition-all select-none"
@@ -217,13 +229,13 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <button 
-              onClick={handleDownloadPDF}
-              className="bg-slate-900 text-white px-4 py-1.5 rounded-lg hover:bg-slate-800 transition-all flex items-center gap-1.5 shadow font-semibold text-xs"
-            >
-              <Download size={14} />
-              PDF Export
-            </button>
+        <button 
+            onClick={handleDownloadPDF}
+            className="bg-slate-900 text-white px-4 py-1.5 rounded-lg hover:bg-slate-850 transition-all flex items-center gap-1.5 shadow font-semibold text-xs cursor-pointer"
+          >
+            <Download size={14} />
+            PDF Export
+          </button>
           </div>
         </div>
 
@@ -241,13 +253,13 @@ export default function DashboardPage() {
 
           <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
             <h2 className="text-sm font-bold text-slate-900">Kategori Bazlı Ciro Trendi</h2>
-            <p className="text-[11px] text-slate-400 mb-2">6 aylık kategori bazlı gelir değişimi</p>
+            <p className="text-[11px] text-slate-400 mb-2">kategori bazlı gelir değişimi</p>
             <CategoryTrendChart data={categoryTrendData} />
           </div>
 
           <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
             <h2 className="text-sm font-bold text-slate-900">Depo Sevkiyat Trendi</h2>
-            <p className="text-[11px] text-slate-400 mb-2">6 aylık depo çıkış/sevkiyat değişimi</p>
+            <p className="text-[11px] text-slate-400 mb-2">depo çıkış/sevkiyat değişimi</p>
             <DepotTrendChart data={depotTrendData} />
           </div>
 
@@ -310,9 +322,9 @@ export default function DashboardPage() {
       </div>
 
       {/* YÜZEN CHATBOT */}
-      <div className="fixed bottom-6 right-6 z-50">
-        {!isChatOpen ? (
-          <button onClick={() => setIsChatOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-105">
+      <div className="fixed bottom-6 right-6 z-50 print:hidden">
+   {!isChatOpen ? (
+          <button onClick={() => setIsChatOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-105 cursor-pointer">
             <Bot size={26} />
           </button>
         ) : (
