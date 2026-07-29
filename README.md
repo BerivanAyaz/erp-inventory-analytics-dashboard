@@ -70,7 +70,9 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları takip 
    cd sonart-dashboard
 3. **Çevresel Değişkenleri (.env) Yapılandırın:**
    Proje kök dizininde .env.local adında bir dosya oluşturun ve kullanmak istediğiniz Gemini API anahtarınızı tanımlayın (Google AI Studio - Create API Key):
+   ```bash
    GEMINI_API_KEY=senin_api_anahtarin_buraya
+   
    > ⚠️ **Not:** Güvenlik nedeniyle `.env.local` dosyası repoda yer almamaktadır. Uygulamayı çalıştırabilmek için [Google AI Studio](https://aistudio.google.com/) üzerinden kendi ücretsiz Gemini API anahtarınızı almanız ve `.env.local` dosyasına tanımlamanız gerekmektedir.
 5. **Geliştirmeyi Başlatın:**
    npm run dev
