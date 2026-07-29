@@ -21,18 +21,21 @@ Bu uygulama, Sonart Tekstil’in Logo Netsis ERP verilerini işleyerek 6 aylık 
 
 <img width="1883" height="473" alt="image" src="https://github.com/user-attachments/assets/bd5b97db-f55e-4a87-99df-4163c0f8ab31" />
 
----
 
 ### 3. Yapay Zeka Destekli Yönetici Strateji Özeti ve Eylem Planı
 <img width="1886" height="857" alt="image" src="https://github.com/user-attachments/assets/10ac9700-7edf-462e-af68-8e15522305f7" />
+
 <img width="1887" height="852" alt="image" src="https://github.com/user-attachments/assets/f8ef45f4-37e1-49b2-aa4f-eb66dacc485e" />
+
 <img width="1888" height="847" alt="image" src="https://github.com/user-attachments/assets/50150780-4d50-44e0-a16c-b43e25cb4a51" />
+
 
 ### 4. İnteraktif ERP Veri Asistanı (Chatbot) 🤖
 Sağ alt köşede yer alan yüzen asistan arayüzü, yöneticilerin anlık sorular sorabilmesi için tasarlanmış **tamamen arayüz tabanlı statik bir simülasyondur**. Girilen soruları gerçek zamanlı olarak bir yapay zeka modeline (Gemini API) iletmez; bunun yerine seçilen dönemi (`selectedPeriod`) metin içerisine dinamik olarak yerleştirerek önceden tanımlanmış sabit bir yanıt döner.
 
 <img width="491" height="527" alt="image" src="https://github.com/user-attachments/assets/4ed85907-6d5b-47bd-8f36-75272ef79283" />
 
+---
 
 ## 🛠️ Seçilen Track, Stack ve AI Entegrasyonu
 
