@@ -41,7 +41,7 @@ Sağ alt köşede yer alan yüzen asistan arayüzü, yöneticilerin anlık sorul
 
 ## 🛠️ Seçilen Track, Stack ve AI Entegrasyonu
 
-* **Seçilen Track:** Logo Netsis ERP verilerinin sunduğu kurumsal derinlik teknik açıdan çok daha cazip geldi; nitekim değerlendirme sürecimde de vurgulandığı üzere, işin çekirdeğindeki ERP ve tedarik zinciri analitiği çok daha kritik ve öncelikli bir katman oluşturuyordu.
+* **Seçilen Track:** Logo Netsis ERP verilerinin sunduğu kurumsal derinlik teknik açıdan çok daha cazip geldi; nitekim değerlendirme sürecimde de vurgulandığı üzere, işin çekirdeğindeki ERP ve tedarik zinciri analitiği çok daha kritik ve öncelikli bir katman oluşturuyordu. Bu sebeple Track B tercihim oldu.
 * **Stack Seçimi:** Next.js (React), Tailwind CSS ve TypeScript. Hızlı component geliştirme kabiliyeti, güçlü tip güvenliği ve esnek state yönetimi sunduğu için seçilmiştir. Grafik bileşenlerinde Recharts, tablo ve veri düzenlemelerinde modern web standartları kullanılmıştır.
 * **AI API Seçimi:** **Google Gemini API (Gemini 3.6 Flash)**. Büyük veri setlerini hızlı işleme kapasitesi, maliyet avantajı (free tier) ve Türkçe kurumsal raporlama diline kusursuz uyum sağladığı için tercih edilmiştir.
 
