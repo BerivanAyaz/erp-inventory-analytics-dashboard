@@ -8,6 +8,8 @@ Bu uygulama, Sonart Tekstil’in Logo Netsis ERP verilerini işleyerek 6 aylık 
 ## 🔗 Ekran Kaydı & Tanıtım Videosu
 * Uygulamanın baştan sona gezildiği, özelliklerinin ve çıktıların özetlendiği 1-2 dakikalık video: 
 
+https://www.loom.com/share/775128c0e0df4543afa3ed1b06169951
+
 ---
 
 ## 📸 Ekran Görüntüleri
