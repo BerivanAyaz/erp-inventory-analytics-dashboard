@@ -61,7 +61,7 @@ export const calculateCategoryPerformance = (data: ERPData[]) => {
   }));
 };
 
-// Depo performans analizi (Yeni)
+// Depo performans analizi 
 export const calculateDepotPerformance = (data: ERPData[]) => {
   if (!data || data.length === 0) return [];
 
@@ -133,7 +133,7 @@ export const identifyRisks = (data: ERPData[]) => {
       oncelikPuani = Math.min(oncelikPuani, 3);
     }
 
-    // 4. Daralan veya Düşük Marj Kontrolü (Artık stok ile birlikte kombine yazılabilir!)
+    // 4. Daralan veya Düşük Marj Kontrolü 
     if (daralanMarjMi) {
       riskEtiketleri.push(`Daralan Kâr Marjı (Önceki: %${oncekiKarMarjiVal.toFixed(1)})`);
       if (riskSeviyesi !== "Kritik") riskSeviyesi = "Uyarı";
@@ -161,9 +161,7 @@ export const identifyRisks = (data: ERPData[]) => {
   return riskliUrunler.sort((a, b) => a.oncelikPuani - b.oncelikPuani || a.stok - b.stok);
 };
 
-
-
-// 6 Aylık Kategori Bazlı Ciro Trendi Hesaplama (TypeScript Güvenli)
+// 6 Aylık Kategori Bazlı Ciro Trendi Hesaplama 
 export const calculateCategoryTrends = (data: any[]) => {
   if (!data || data.length === 0) return [];
 
@@ -182,6 +180,7 @@ export const calculateCategoryTrends = (data: any[]) => {
 
   return Object.values(periodMap).sort((a, b) => String(a.donem).localeCompare(String(b.donem)));
 };
+
 // 6 Aylık Depo Bazlı Çıkış/Sevkiyat Trendi
 export const calculateDepotTrends = (data: ERPData[]) => {
   if (!data || data.length === 0) return [];
@@ -201,6 +200,7 @@ export const calculateDepotTrends = (data: ERPData[]) => {
 
   return Object.values(periodMap).sort((a, b) => String(a.donem).localeCompare(String(b.donem)));
 };
+
 // Dönemsel Kâr Marjı ve Maliyet Trendi Hesaplama
 export const calculateMarginTrends = (data: ERPData[]) => {
   if (!data || data.length === 0) return [];
@@ -227,6 +227,7 @@ export const calculateMarginTrends = (data: ERPData[]) => {
     ortalamaSatis: Number((p.toplamSatisFiyati / p.count).toFixed(2))
   })).sort((a, b) => a.donem.localeCompare(b.donem));
 };
+
 // Kategori Bazlı Stok Devir Hızı / Verimlilik Hesaplama
 export const calculateCategoryTurnover = (data: ERPData[]) => {
   if (!data || data.length === 0) return [];

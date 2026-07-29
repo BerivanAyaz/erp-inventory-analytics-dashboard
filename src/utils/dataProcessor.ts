@@ -20,7 +20,6 @@ export const processCSVData = async (csvText: string) => {
       dynamicTyping: true,
       skipEmptyLines: true,
       error: (err: any) => {
-        // Hata Yönetimi: Dosya formatı bozuksa sistemi çökertme, hatayı yakala.
         console.error("CSV Ayrıştırma Hatası:", err);
         reject(new Error("Dosya formatı hatalı veya okunamadı."));
       },
@@ -28,7 +27,7 @@ export const processCSVData = async (csvText: string) => {
         const rawData = results.data as any[];
         const cleanData: ERPData[] = [];
         
-        // BONUS: Gelişmiş Anomali Raporu Tutucu
+        // Gelişmiş Anomali Raporu Tutucu
         const anomalies = {
           doldurulanEksikVeri: 0,
           kopyaKayitSayisi: 0,
@@ -80,14 +79,13 @@ export const processCSVData = async (csvText: string) => {
           }
           uniqueKeys.add(uniqueKey);
 
-          // 3. EKSİK VERİ TAMAMLAMA (Data Science / Trend Koruma Yaklaşımı)
+          // 3. EKSİK VERİ TAMAMLAMA 
           let gMiktar = safeParseNumber(row.giris_miktar);
           let cMiktar = safeParseNumber(row.cikis_miktar);
           let stok = safeParseNumber(row.donem_sonu_stok);
           let maliyet = safeParseNumber(row.birim_maliyet_tl);
           let satis = safeParseNumber(row.birim_satis_tl);
 
-          // Rakamlarda eksiklik varsa satırı silme, trend kopmasın diye 0 ile tamamla
           if (gMiktar === null || cMiktar === null || stok === null || maliyet === null || satis === null) {
               anomalies.doldurulanEksikVeri++;
               gMiktar = gMiktar ?? 0;
@@ -101,19 +99,19 @@ export const processCSVData = async (csvText: string) => {
           // 4. MANTIKSAL HATALAR VE RİSK YÖNETİMİ
           if (stok < 0) {
              anomalies.kritikHataSayisi++;
-             stok = 0; // Stok eksiye düşemez, 0'a çekiyoruz.
+             stok = 0; 
              anomalies.temizlenenSatirlar.push(`Satır ${satirNo}: Negatif stok (${stokKodu}) 0'a eşitlendi.`);
           }
 
           if (maliyet < 0) {
-             maliyet = 0; // Negatif maliyet hesaplamaları bozar
+             maliyet = 0; 
           }
 
           if (stok > 0 && stok < 50) {
             anomalies.stokTukenmeRiski++;
           }
 
-          // 5. GÜVENLİ SATIRI DİZİYE EKLE (Açıklayıcı verilerde null varsa varsayılan değer atanır)
+          // 5. GÜVENLİ SATIRI DİZİYE EKLE
           cleanData.push({
             stok_kodu: stokKodu,
             urun_adi: row.urun_adi?.toString().trim() || "Bilinmeyen Ürün",

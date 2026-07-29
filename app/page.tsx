@@ -37,7 +37,6 @@ export default function DashboardPage() {
   const [chatHistory, setChatHistory] = useState<{role: string, text: string}[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
 
-  // Dönem menüsü açıkken dışarıya veya Veri Durumu'na tıklandığında menüyü kapat
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -194,7 +193,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto print:hidden">
             <AnomalyBanner anomalies={anomalies} />
 
-{/* MODERN ÖZEL DROPDOWN */}
+         {/* MODERN ÖZEL DROPDOWN */}
             <div id="period-dropdown-container" className="relative">
               <div 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -242,7 +241,6 @@ export default function DashboardPage() {
         {/* 1. ŞERİT: KPI KARTLARI */}
         <KpiCards kpis={kpis} />
 
-        {/* 2. ŞERİT: 4'LÜ ZAMAN SERİSİ BENTO GRID (2x2 Düzen) */}
        {/* 2. ŞERİT: ZAMAN SERİSİ VE VERİMLİLİK BENTO GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
@@ -321,7 +319,7 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* YÜZEN CHATBOT */}
+      {/* CHATBOT */}
       <div className="fixed bottom-6 right-6 z-50 print:hidden">
    {!isChatOpen ? (
           <button onClick={() => setIsChatOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-105 cursor-pointer">

@@ -43,7 +43,7 @@ export default function TrendChart({ data }: TrendChartProps) {
             axisLine={false}
             tickLine={false}
           />
-          {/* Sağ Eksen: Stoklar için (Farklı ölçekte olabilirler) */}
+          {/* Sağ Eksen: Stoklar için */}
           <YAxis 
             yAxisId="right" 
             orientation="right" 
@@ -61,7 +61,7 @@ export default function TrendChart({ data }: TrendChartProps) {
             type="monotone" 
             dataKey="toplamSatis" 
             name="Toplam Satış"
-            stroke="#3b82f6" // Mavi
+            stroke="#3b82f6"
             strokeWidth={3}
             dot={{ r: 4, strokeWidth: 2 }}
             activeDot={{ r: 6 }}
@@ -71,7 +71,7 @@ export default function TrendChart({ data }: TrendChartProps) {
             type="monotone" 
             dataKey="donemSonuStok" 
             name="Dönem Sonu Stok"
-            stroke="#10b981" // Yeşil
+            stroke="#10b981"
             strokeWidth={3}
             dot={{ r: 4, strokeWidth: 2 }}
           />

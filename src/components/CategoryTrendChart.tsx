@@ -15,7 +15,6 @@ export default function CategoryTrendChart({ data }: CategoryTrendChartProps) {
     return <div className="flex justify-center items-center h-64 text-slate-400">Kategori trendleri yükleniyor...</div>;
   }
 
-  // Kategorileri dinamik olarak bulalım (Giyimlik, Döşemelik vb.)
   const categories = Object.keys(data[0] || {}).filter(key => key !== 'donem');
   const colors = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
