@@ -52,7 +52,7 @@ Uygulama, CSV verisindeki dönem (`donem`) sütununu dinamik olarak parse ederek
 ## 🚀 Gerçek / Production Ortamına Taşısaydım Neyi Farklı Yapardım?
 * **Ölçeklenebilirlik:** Veriler statik CSV yerine MSSQL / MongoDB tabanlı bir ERP veritabanından (`Prisma` veya `Drizzle` ORM ile) sunucu tarafında (Server-side Pagination) çekilirdi.
 * **Güvenlik:** Kurumsal ERP verileri hassas olduğu için NextAuth / Auth.js ile rol tabanlı yetkilendirme (RBAC - C-Level Yönetici, Depo Sorumlusu vb.) eklenirdi.
-* **Maliyet & Önbellekleme:** Mevcut yapıda tarayıcı tabanlı (localStorage) bireysel bir önbellek kullanıldığı için, her farklı kullanıcı aynı dönemi ilk açtığında API yeniden tetiklenir. Gerçek bir production ortamında ise sunucu tarafında Redis gibi merkezi bir caching mekanizması kurulur; böylece aynı döneme gelen ilk istekten sonra sonuçlar ortak havuzda saklanır ve tekrar eden API maliyetleri ile sunucu yükü sıfıra indirilir.
+* **Maliyet & Önbellekleme:** Mevcut yapıda tarayıcı tabanlı (localStorage) bireysel bir önbellek kullanıldığı için, her farklı kullanıcı aynı dönemi ilk açtığında API yeniden tetikleniyor. Gerçek bir production ortamında ise sunucu tarafında Redis gibi merkezi bir caching mekanizması kurulur; böylece aynı döneme gelen ilk istekten sonra sonuçlar ortak havuzda saklanır ve tekrar eden API maliyetleri ile sunucu yükü sıfıra indirilirdi.
 
 ---
 
