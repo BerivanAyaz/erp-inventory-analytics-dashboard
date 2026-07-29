@@ -23,7 +23,7 @@ Bu uygulama, Sonart Tekstil’in Logo Netsis ERP verilerini işleyerek 6 aylık 
 
 ---
 
-### 2. Yapay Zeka Destekli Yönetici Strateji Özeti ve Eylem Planı
+### 3. Yapay Zeka Destekli Yönetici Strateji Özeti ve Eylem Planı
 <img width="1886" height="857" alt="image" src="https://github.com/user-attachments/assets/10ac9700-7edf-462e-af68-8e15522305f7" />
 <img width="1887" height="852" alt="image" src="https://github.com/user-attachments/assets/f8ef45f4-37e1-49b2-aa4f-eb66dacc485e" />
 <img width="1888" height="847" alt="image" src="https://github.com/user-attachments/assets/50150780-4d50-44e0-a16c-b43e25cb4a51" />
