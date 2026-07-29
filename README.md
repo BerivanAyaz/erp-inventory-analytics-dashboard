@@ -50,7 +50,7 @@ Sağ alt köşede yer alan yüzen asistan arayüzü, yöneticilerin anlık sorul
 ## 🔄 Dönemler Arası Farklılaşmanın Rapora Yansıtılması
 Uygulama, CSV verisindeki dönem (`donem`) sütununu dinamik olarak parse ederek `availablePeriods` dizisini oluşturur. Kullanıcı arayüzdeki "Dönem Seçimi" dropdown menüsünden ister tek bir ayı (Örn: `2026-01`), ister "Tüm Dönemler (6 Ay Kümülatif)" seçeneğini seçebilir. Seçilen döneme göre:
 * KPI kartları, zaman serisi grafikleri ve depo sevkiyat trendleri anlık olarak filtrelenir.
-* Sayfanın altındaki Yapay Zeka Yönetici Strateji Özeti, seçilen dönemin verilerine özel olarak baştan hesaplanır ve o aya ait riskli ürünler/aksiyon önerileri dinamik olarak sunulur.
+* Sayfanın altındaki Yapay Zeka Yönetici Strateji Özeti, seçilen dönemin verilerine özel olarak baştan hesaplanır ve o aya ait riskli ürünler-aksiyon önerileri dinamik olarak sunulur.
 
 ---
 
