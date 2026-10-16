@@ -1,88 +1,70 @@
-# Sonart Tekstil - Çok Dönemli Satış ve Stok Yönetici Kokpiti (ERP)
+# 📊 Enterprise ERP & Multi-Period Sales/Inventory Management Dashboard
 
-## 📌 Özet
-Bu uygulama, Sonart Tekstil’in Logo Netsis ERP verilerini işleyerek 6 aylık periyotlar ve dönemsel bazda kapsamlı bir satış, stok ve kârlılık analizi sunan akıllı bir karar destek kokpitidir. Ekran görüntülerinde ve videoda inceleyeceğiniz arayüz; ürün bazlı risk matrislerini, depo sevkiyat trendlerini ve ciro değişimlerini tek ekranda toplar. Ortaya çıkan sonuçlar, yönetim kuruluna hangi ürünlerin stok tükettiğini, hangi kategorilerin sermaye verimliliği sağladığını ve dönemsel bazda acil alınması gereken stratejik aksiyonları net bir şekilde söyler.
-
----
-
-## 🔗 Ekran Kaydı & Tanıtım Videosu
-* Uygulamanın baştan sona gezildiği, özelliklerinin ve çıktıların özetlendiği video: 
-
-https://www.loom.com/share/775128c0e0df4543afa3ed1b06169951
+## 📌 Overview
+This application is an intelligent decision-support dashboard that processes enterprise ERP data to provide comprehensive sales, inventory, and profitability analysis across multi-period intervals (monthly and cumulative 6-month views). The user interface consolidates product-based risk matrices, warehouse shipment trends, and revenue shifts into a single executive screen. It delivers clear insights to management regarding stock turnover, capital efficiency, and strategic action plans.
 
 ---
 
-## 📸 Ekran Görüntüleri
+## 📸 Screenshots
 
-### 1. Genel Kokpit ve Çok Dönemli KPI Görünümü
+### 1. Executive Dashboard & Multi-Period KPI View
 <img width="1883" height="708" alt="image" src="https://github.com/user-attachments/assets/9e991e72-4f8f-4cf5-b480-3ce8540d1fa4" />
 
-
-### 2. Kâr Marjı, Stok Verimliliği ve Risk Matrisi Tablosu
+### 2. Profit Margin, Inventory Efficiency & Risk Matrix Table
 <img width="1877" height="440" alt="image" src="https://github.com/user-attachments/assets/4d3a5e9f-d6b9-4c36-b6ab-bc7f589044b7" />
-
 <img width="1883" height="473" alt="image" src="https://github.com/user-attachments/assets/bd5b97db-f55e-4a87-99df-4163c0f8ab31" />
 
-
-### 3. Yapay Zeka Destekli Yönetici Strateji Özeti ve Eylem Planı
+### 3. AI-Powered Executive Strategy Summary & Action Plan
 <img width="1886" height="857" alt="image" src="https://github.com/user-attachments/assets/10ac9700-7edf-462e-af68-8e15522305f7" />
-
 <img width="1887" height="852" alt="image" src="https://github.com/user-attachments/assets/f8ef45f4-37e1-49b2-aa4f-eb66dacc485e" />
-
 <img width="1888" height="847" alt="image" src="https://github.com/user-attachments/assets/50150780-4d50-44e0-a16c-b43e25cb4a51" />
 
-
-### 4. İnteraktif ERP Veri Asistanı (Chatbot) 🤖
-Sağ alt köşede yer alan yüzen asistan arayüzü, yöneticilerin anlık sorular sorabilmesi için tasarlanmış **tamamen arayüz tabanlı statik bir simülasyondur**. Girilen soruları gerçek zamanlı olarak bir yapay zeka modeline (Gemini API) iletmez; bunun yerine seçilen dönemi (`selectedPeriod`) metin içerisine dinamik olarak yerleştirerek önceden tanımlanmış sabit bir yanıt döner.
+### 4. Interactive ERP Data Assistant (Chatbot) 🤖
+The floating assistant interface in the bottom right corner is a **fully interface-based static simulation** designed for managers to query insights. It dynamically injects the selected period (`selectedPeriod`) into pre-defined structured context templates.
 
 <img width="491" height="527" alt="image" src="https://github.com/user-attachments/assets/4ed85907-6d5b-47bd-8f36-75272ef79283" />
 
 ---
 
-## 🛠️ Seçilen Track, Stack ve AI Entegrasyonu
+## 🛠️ Tech Stack & AI Integration
 
-* **Seçilen Track:** Logo Netsis ERP verilerinin sunduğu kurumsal derinlik teknik açıdan çok daha cazip geldi; nitekim değerlendirme sürecimde de vurgulandığı üzere, işin çekirdeğindeki ERP ve tedarik zinciri analitiği çok daha kritik ve öncelikli bir katman oluşturuyordu. Bu sebeple Track B tercihim oldu.
-* **Stack Seçimi:** Next.js (React), Tailwind CSS ve TypeScript. Hızlı component geliştirme kabiliyeti, güçlü tip güvenliği ve esnek state yönetimi sunduğu için seçilmiştir. Grafik bileşenlerinde Recharts, tablo ve veri düzenlemelerinde modern web standartları kullanılmıştır.
-* **AI API Seçimi:** **Google Gemini API (Gemini 3.6 Flash)**. Büyük veri setlerini hızlı işleme kapasitesi, maliyet avantajı (free tier) ve Türkçe kurumsal raporlama diline kusursuz uyum sağladığı için tercih edilmiştir.
-
----
-
-## 🔄 Dönemler Arası Farklılaşmanın Rapora Yansıtılması
-Uygulama, CSV verisindeki dönem (`donem`) sütununu dinamik olarak parse ederek `availablePeriods` dizisini oluşturur. Kullanıcı arayüzdeki "Dönem Seçimi" dropdown menüsünden ister tek bir ayı (Örn: `2026-01`), ister "Tüm Dönemler (6 Ay Kümülatif)" seçeneğini seçebilir. Seçilen döneme göre:
-* KPI kartları, zaman serisi grafikleri ve depo sevkiyat trendleri anlık olarak filtrelenir.
-* Sayfanın altındaki Yapay Zeka Yönetici Strateji Özeti, seçilen dönemin verilerine özel olarak baştan hesaplanır ve o aya ait riskli ürünler-aksiyon önerileri dinamik olarak sunulur.
+- **Frontend & Framework:** Next.js (React), TypeScript, Tailwind CSS. Chosen for rapid component development, strict type safety, and flexible state management. Charts are rendered using Recharts.
+- **AI Integration:** **Google Gemini API**. Chosen for its capacity to handle analytical context quickly, cost-efficiency, and natural language structured reporting capabilities.
 
 ---
 
-## 🧗‍♂️ En Zorlanılan Nokta ve Çözüm Yolu
-* **Yaşanan Zorluk:** Çok dönemli ERP verilerinden gelen dinamik filtrelemelerin (tekil ay ile 6 aylık kümülatif ALL mod geçişleri) Recharts zaman serisi grafiklerinde ve kategori bazlı devir hızı hesaplamalarında anlık olarak senkronize edilmesi sırasında performans ve state tutarlılığı sorunu yaşandı.
-* **Çözüm Yolu:** Veri işleme katmanı optimize edilerek filtreleme mekanizması applyFilters fonksiyonu altında merkezileştirildi; böylece dönem değişimlerinde tüm grafikler ve AI analiz istemcisi gereksiz render maliyeti olmaksızın anlık ve hatasız şekilde güncellendi.
----
-
-## 🚀 Gerçek / Production Ortamına Taşısaydım Neyi Farklı Yapardım?
-* **Ölçeklenebilirlik:** Veriler statik CSV yerine MSSQL / MongoDB tabanlı bir ERP veritabanından (`Prisma` veya `Drizzle` ORM ile) sunucu tarafında (Server-side Pagination) çekilirdi.
-* **Güvenlik:** Kurumsal ERP verileri hassas olduğu için NextAuth / Auth.js ile rol tabanlı yetkilendirme (RBAC - C-Level Yönetici, Depo Sorumlusu vb.) eklenirdi.
-* **Maliyet & Önbellekleme:** Mevcut yapıda tarayıcı tabanlı (localStorage) bireysel bir önbellek kullanıldığı için, her farklı kullanıcı aynı dönemi ilk açtığında API yeniden tetikleniyor. Gerçek bir production ortamında ise sunucu tarafında Redis gibi merkezi bir caching mekanizması kurulur; böylece aynı döneme gelen ilk istekten sonra sonuçlar ortak havuzda saklanır ve tekrar eden API maliyetleri ile sunucu yükü sıfıra indirilirdi.
+## 🔄 Dynamic Multi-Period Filtering
+The application dynamically parses the period (`donem`) column to populate filter options (e.g., individual months or "All Periods / 6-Month Cumulative"). Based on the selected filter:
+- KPI cards, time-series charts, and warehouse shipment trends update instantaneously.
+- The AI Executive Strategy Summary recalculates metrics tailored to that specific timeframe.
 
 ---
 
-## 📦 Kurulum ve Çalıştırma Adımları
+## 🚀 Production Considerations
+If scaling this dashboard for a real-world enterprise production environment:
+- **Scalability:** Migrate from static CSV processing to an MSSQL / MongoDB backend with server-side pagination using Prisma or Drizzle ORM.
+- **Security:** Implement Role-Based Access Control (RBAC) via NextAuth / Auth.js for C-Level executives and warehouse supervisors.
+- **Caching & Cost Optimization:** Implement a centralized server-side caching layer (such as Redis) to prevent redundant LLM API calls for identical period requests.
 
-Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları takip edebilirsiniz:
+---
 
-1. **Repoyu Klonlayın:**
+## 📦 Installation & Getting Started
+
+To run this project locally:
+
+1. **Clone the Repository:**
    ```bash
-   git clone <repo-url-adresiniz>
+   git clone [https://github.com/BerivanAyaz/sonart-dashboard.git](https://github.com/BerivanAyaz/sonart-dashboard.git)
    cd sonart-dashboard
-2. **Bağımlılıkları yükleyin:**
+   ```
+2. **Install Dependencies:**
    ```bash
    npm install
-   cd sonart-dashboard
-3. **Çevresel Değişkenleri (.env) Yapılandırın:**
-   Proje kök dizininde .env.local adında bir dosya oluşturun ve kullanmak istediğiniz Gemini API anahtarınızı tanımlayın (Google AI Studio - Create API Key):
+   ```
+3. **Configure Environment Variables:**
+   Create a .env.local file in the root directory and add your Gemini API key:
    ```bash
-   GEMINI_API_KEY=senin_api_anahtarin_buraya
-   
-   > ⚠️ **Not:** Güvenlik nedeniyle `.env.local` dosyası repoda yer almamaktadır. Uygulamayı çalıştırabilmek için [Google AI Studio](https://aistudio.google.com/) üzerinden kendi ücretsiz Gemini API anahtarınızı almanız ve `.env.local` dosyasına tanımlamanız gerekmektedir.
-5. **Geliştirmeyi Başlatın:**
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+4. **Run the Development Server:**
    npm run dev
