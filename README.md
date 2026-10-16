@@ -67,4 +67,6 @@ To run this project locally:
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
 4. **Run the Development Server:**
+   ```bash
    npm run dev
+   ```
